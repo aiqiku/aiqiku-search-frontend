@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import logo from "@/assets/logo.png";
-import { defineProps, withDefaults } from "vue";
+import { withDefaults } from "vue";
+import { Post } from "@/types";
 
 interface Pros {
-  postList: any[];
+  postList: Post[];
 }
 
+// eslint-disable-next-line no-undef
 const props = withDefaults(defineProps<Pros>(), {
   postList: () => [],
 });
