@@ -4,7 +4,7 @@ import { withDefaults } from "vue";
 import { UserOutlined } from "@ant-design/icons-vue";
 
 interface Pros {
-  userList: User[];
+  userList?: User[];
 }
 
 // eslint-disable-next-line no-undef
@@ -12,9 +12,11 @@ const props = withDefaults(defineProps<Pros>(), {
   userList: () => [],
 });
 </script>
-
 <template>
-  <a-list item-layout="horizontal" :data-source="props.userList">
+  <a-list
+    item-layout="horizontal"
+    :data-source="props.userList ? props.userList : []"
+  >
     <template #renderItem="{ item }">
       <a-list-item>
         <a-list-item-meta :description="item.userProfile">

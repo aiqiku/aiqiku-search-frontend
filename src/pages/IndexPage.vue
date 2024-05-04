@@ -7,6 +7,7 @@ import MyDivider from "@/components/MyDivider.vue";
 import { useRoute, useRouter } from "vue-router";
 import myAxios from "@/plugins/myAxios";
 import { Post, User } from "@/types";
+import { message } from "ant-design-vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -15,10 +16,13 @@ const postList = ref<Array<Post>>([]);
 const userList = ref<Array<User>>([]);
 const pictureList = ref([]);
 const initSearchParams = {
-  searchText: "",
+  text: "",
+  type: "post",
   pageSize: 10,
   pageNum: 1,
 };
+const searchParams = ref(initSearchParams);
+const searchText = ref(route.query.text);
 const loadAllDataOld = (params: any) => {
   let postQuery = {
     ...params,
@@ -37,10 +41,36 @@ const loadAllDataOld = (params: any) => {
   searchPicture(pictureQuery);
 };
 const loadAllData = (params: any) => {
+  const { searchText } = params;
+  console.log(searchText);
   myAxios.post("/search/all", params).then((res: any) => {
     postList.value = res.postVOList;
     userList.value = res.userVOList;
     pictureList.value = res.pictureList;
+  });
+};
+const loadSingleData = (params: any) => {
+  console.log(params);
+  const { type } = params;
+  if (!type) {
+    message.error("搜索类别为空!");
+    return;
+  }
+  const query = {
+    ...params,
+    searchText: params.text,
+  };
+  myAxios.post("/search/all", query).then((res: any) => {
+    if (type === "post") {
+      postList.value = res.postVOList;
+      return;
+    } else if (type === "user") {
+      userList.value = res.userVOList;
+      return;
+    } else if (type === "picture") {
+      pictureList.value = res.pictureList;
+      return;
+    }
   });
 };
 
@@ -59,16 +89,23 @@ const searchPicture = (params: any) => {
     pictureList.value = res.records;
   });
 };
-const searchParams = ref(initSearchParams);
+
 watchEffect(() => {
   searchParams.value = {
     ...initSearchParams,
-    searchText: route.query.text,
+    text: route.query.text,
+    type: route.params.category,
   } as any;
+  console.log(searchParams.value.text);
+  console.log(searchParams.value.type);
+  loadSingleData(searchParams.value);
 });
-const onSearch = () => {
+const onSearch = (value: string) => {
   router.push({
-    query: searchParams.value,
+    query: {
+      ...searchParams.value,
+      text: value,
+    },
   });
   loadAllData(searchParams.value);
 };
@@ -78,13 +115,11 @@ const onTabChange = (key: string) => {
     query: searchParams.value,
   });
 };
-//初始化数据
-loadAllData(searchParams.value);
 </script>
 <template>
   <div class="index-page">
     <a-input-search
-      v-model:value="searchParams.searchText"
+      v-model:value="searchText"
       placeholder="请输入搜索内容"
       enter-button="搜索"
       size="large"

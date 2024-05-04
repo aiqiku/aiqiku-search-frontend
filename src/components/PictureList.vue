@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Pros {
-  pictureList: [];
+  pictureList?: [];
 }
 
 // eslint-disable-next-line no-undef
@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<Pros>(), {
   <a-list
     item-layout="horizontal"
     :grid="{ gutter: 25, xs: 1, sm: 2, md: 4, lg: 4, xl: 6, xxl: 3 }"
-    :data-source="props.pictureList"
+    :data-source="props.pictureList ? props.pictureList : []"
   >
     <template #renderItem="{ item }">
       <a-list-item>
